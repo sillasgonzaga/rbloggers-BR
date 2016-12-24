@@ -32,7 +32,8 @@ sites <- c("Paixão por Dados" = "http://sillasgonzaga.github.io/feed.xml",
            "Symposio" = "https://blog.symposio.com.br/feed",
            "Sociais e Métodos" = "https://sociaisemetodos.wordpress.com/feed/",
            "Cantinho do R" = "https://cantinhodor.wordpress.com/feed/",
-           "Urban Demographics" = "http://feeds.feedburner.com/UrbanDemographics")
+           "Urban Demographics" = "http://feeds.feedburner.com/UrbanDemographics",
+           "Análise Macro" = "http://feeds.feedburner.com/analisemacro")
 
 
 lista.feed <- lapply(sites, feed.extract, encoding = "UTF-8")
