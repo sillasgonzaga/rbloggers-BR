@@ -2,7 +2,6 @@ rm(list = ls())
 
 
 # pacotes
-library(XML)
 library(feedeR)
 library(magrittr)
 library(lubridate)
@@ -59,6 +58,7 @@ df.posts.novos <- subset(df.posts, !(hash %in% df.posts.antigos$hash))
 # salvar posts
 write.table(df.posts, file = "posts.csv", sep = ";", row.names = FALSE, append = FALSE)
 
+
 # criar função de template de tweet
 template.tweet <- function(data) {
   nome <- data[["nome_blog"]]
@@ -70,19 +70,26 @@ template.tweet <- function(data) {
   return(msg)
 }
 
-# encurtar link
-df.posts.novos$link_curto <- NA
-for (i in 1:nrow(df.posts)) {
-  df.posts.novos$link_curto[i] <- googl_LinksShorten(df.posts.novos$link[i])$id
+# executar codigo apenas se nrow(df.posts.novos) > 0
+
+if (nrow(df.posts.novos) > 0) {
+  
+  # encurtar link
+  df.posts.novos$link_curto <- NA
+  for (i in 1:nrow(df.posts)) {df.posts.novos$link_curto[i] <- googl_LinksShorten(df.posts.novos$link[i])$id}
+  
+  # classificar de acordo com a data do post
+  df.posts.novos %<>% arrange(data_post)
+  
+  
+  for (i in 1:nrow(df.posts.novos)) {
+    x <- df.posts.novos[i, ]
+    msg <- template.tweet(x)
+    tweet(msg)
+    Sys.sleep(10) # adicionar 10 seg de delay pro twitter nao bloquear o bot
+  }
+  
+  
+  
 }
 
-# classificar de acordo com a data do post
-df.posts.novos %<>% arrange(data_post)
-
-
-for (i in 1:nrow(df.posts.novos)) {
-  x <- df.posts.novos[i, ]
-  msg <- template.tweet(x)
-  tweet(msg)
-  Sys.sleep(10) # adicionar 10 seg de delay pro twitter nao bloquear o bot
-}
