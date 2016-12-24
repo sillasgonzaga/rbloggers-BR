@@ -31,7 +31,8 @@ sites <- c("Paixão por Dados" = "http://sillasgonzaga.github.io/feed.xml",
            "R, Python e Redes" = "http://neylsoncrepalde.github.io/feed.xml",
            "Symposio" = "https://blog.symposio.com.br/feed",
            "Sociais e Métodos" = "https://sociaisemetodos.wordpress.com/feed/",
-           "Cantinho do R" = "https://cantinhodor.wordpress.com/feed/")
+           "Cantinho do R" = "https://cantinhodor.wordpress.com/feed/",
+           "Urban Demographics" = "http://feeds.feedburner.com/UrbanDemographics")
 
 
 lista.feed <- lapply(sites, feed.extract, encoding = "UTF-8")
@@ -44,6 +45,8 @@ for (i in 1:length(lista.feed)) {
   # criar data frame com três variáveis:
   # nome_blog, #titulo_post, #link, #data_post
   blog <- lista.feed[[i]]$items
+  # No blogpost, title é na verdade title.text:
+  names(blog)[names(blog) == "title.text"] <- "title"
   nome_blog <- names(sites)[i]
   lista.dfs[[i]] <- data.frame(nome_blog = nome_blog,
                                titulo_post = blog$title,
