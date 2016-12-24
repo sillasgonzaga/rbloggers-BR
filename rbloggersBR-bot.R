@@ -1,0 +1,88 @@
+rm(list = ls())
+
+
+# pacotes
+library(XML)
+library(feedeR)
+library(magrittr)
+library(lubridate)
+library(readr)
+library(dplyr)
+library(twitteR)
+library(urlshorteneR)
+
+# carregar keys e oauth
+# twitter
+api_key <- Sys.getenv("twitter_api_key")
+api_secret <- Sys.getenv("twitter_api_secret")
+access_token <- Sys.getenv("twitter_access_token")
+access_token_secret <- Sys.getenv("twitter_access_token_secret")
+setup_twitter_oauth(api_key,api_secret,access_token,access_token_secret)
+
+# goo.gl
+load("my_googl")
+googl_token <- googl_auth(my_googl$key, my_googl$secret)
+
+
+# Parsear RSS, baixar posts publicados e criar um dataframe com posts novos (df.posts.novos)
+# carregar posts ja usados no bot
+df.posts.antigos <- read_csv2("posts.csv")
+
+sites <- c("Paixão por Dados" = "http://sillasgonzaga.github.io/feed.xml",
+           "R, Python e Redes" = "http://neylsoncrepalde.github.io/feed.xml",
+           "Symposio" = "https://blog.symposio.com.br/feed")
+
+
+lista.feed <- lapply(sites, feed.extract, encoding = "UTF-8")
+# o objeto lista.feed é uma lista composta de múltiplas listas
+# criar uma lista apenas de data frames
+
+lista.dfs <- list(rep(NA, length(sites)))
+
+for (i in 1:length(lista.feed)) {
+  # criar data frame com três variáveis:
+  # nome_blog, #titulo_post, #link, #data_post
+  blog <- lista.feed[[i]]$items
+  nome_blog <- names(sites)[i]
+  lista.dfs[[i]] <- data.frame(nome_blog = nome_blog,
+                               titulo_post = blog$title,
+                               link = blog$link,
+                               data_post = blog$date,
+                               hash = blog$hash,
+                               stringsAsFactors = FALSE)
+}
+
+df.posts <- plyr::rbind.fill(lista.dfs)
+# achar posts que nao estao presentes 
+df.posts.novos <- subset(df.posts, !(hash %in% df.posts.antigos$hash))
+
+# salvar posts
+write.table(df.posts, file = "posts.csv", sep = ";", row.names = FALSE, append = FALSE)
+
+# criar função de template de tweet
+template.tweet <- function(data) {
+  nome <- data[["nome_blog"]]
+  titulo <- data[["titulo_post"]]
+  link <- data[["link_curto"]]
+  msg <- paste0(nome, ": ", titulo)
+  msg <- substr(msg, 1, 110)
+  msg <- paste0(msg, ". ", link)
+  return(msg)
+}
+
+# encurtar link
+df.posts.novos$link_curto <- NA
+for (i in 1:nrow(df.posts)) {
+  df.posts.novos$link_curto[i] <- googl_LinksShorten(df.posts.novos$link[i])$id
+}
+
+# classificar de acordo com a data do post
+df.posts.novos %<>% arrange(data_post)
+
+
+for (i in 1:nrow(df.posts.novos)) {
+  x <- df.posts.novos[i, ]
+  msg <- template.tweet(x)
+  tweet(msg)
+  Sys.sleep(10) # adicionar 10 seg de delay pro twitter nao bloquear o bot
+}
