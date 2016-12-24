@@ -29,7 +29,8 @@ df.posts.antigos <- read_csv2("posts.csv")
 
 sites <- c("Paixão por Dados" = "http://sillasgonzaga.github.io/feed.xml",
            "R, Python e Redes" = "http://neylsoncrepalde.github.io/feed.xml",
-           "Symposio" = "https://blog.symposio.com.br/feed")
+           "Symposio" = "https://blog.symposio.com.br/feed",
+           "Sociais e Métodos" = "https://sociaisemetodos.wordpress.com/feed/")
 
 
 lista.feed <- lapply(sites, feed.extract, encoding = "UTF-8")
@@ -71,6 +72,7 @@ df.posts.novos <- subset(df.posts, !(hash %in% df.posts.antigos$hash))
 # salvar posts
 write.table(df.posts, file = "posts.csv", sep = ";", row.names = FALSE, append = FALSE)
 
+
 # criar função de template de tweet
 template.tweet <- function(data) {
   nome <- data[["nome_blog"]]
@@ -90,7 +92,7 @@ if (nrow(df.posts.novos) > 0) {
   
   # encurtar link
   df.posts.novos$link_curto <- NA
-  for (i in 1:nrow(df.posts)) {df.posts.novos$link_curto[i] <- googl_LinksShorten(df.posts.novos$link[i])$id}
+  for (i in 1:nrow(df.posts.novos)) {df.posts.novos$link_curto[i] <- googl_LinksShorten(df.posts.novos$link[i])$id}
   
   for (i in 1:nrow(df.posts.novos)) {
     x <- df.posts.novos[i, ]
@@ -98,8 +100,5 @@ if (nrow(df.posts.novos) > 0) {
     tweet(msg)
     Sys.sleep(10) # adicionar 10 seg de delay pro twitter nao bloquear o bot
   }
-  
-  
-  
 }
 
