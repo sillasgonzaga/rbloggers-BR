@@ -52,12 +52,24 @@ for (i in 1:length(lista.feed)) {
 }
 
 df.posts <- plyr::rbind.fill(lista.dfs)
-# achar posts que nao estao presentes 
+
+
+# PARSEAR STACK OVERFLOW BR
+so <- "http://pt.stackoverflow.com/feeds/tag?tagnames=r&sort=newest" %>%
+  feed.extract() %>%
+  .[["items"]] %>%
+  mutate(nome_blog = "StackOverflowBR")
+# renomear colunas do so para ficar igual ao df.posts
+so %<>% select(nome_blog, titulo_post = title.text, link = link, data_post = date, hash = hash)
+
+# mergir com df de blog posts
+df.posts %<>% rbind(so)
+
+# achar posts e perguntas SO que nao estao presentes 
 df.posts.novos <- subset(df.posts, !(hash %in% df.posts.antigos$hash))
 
 # salvar posts
 write.table(df.posts, file = "posts.csv", sep = ";", row.names = FALSE, append = FALSE)
-
 
 # criar função de template de tweet
 template.tweet <- function(data) {
@@ -70,17 +82,15 @@ template.tweet <- function(data) {
   return(msg)
 }
 
-# executar codigo apenas se nrow(df.posts.novos) > 0
+# classificar de acordo com a data do post
+df.posts.novos %<>% arrange(data_post)
 
+# executar codigo apenas se nrow(df.posts.novos) > 0
 if (nrow(df.posts.novos) > 0) {
   
   # encurtar link
   df.posts.novos$link_curto <- NA
   for (i in 1:nrow(df.posts)) {df.posts.novos$link_curto[i] <- googl_LinksShorten(df.posts.novos$link[i])$id}
-  
-  # classificar de acordo com a data do post
-  df.posts.novos %<>% arrange(data_post)
-  
   
   for (i in 1:nrow(df.posts.novos)) {
     x <- df.posts.novos[i, ]
