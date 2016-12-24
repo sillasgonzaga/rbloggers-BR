@@ -65,8 +65,8 @@ template.tweet <- function(data) {
   titulo <- data[["titulo_post"]]
   link <- data[["link_curto"]]
   msg <- paste0(nome, ": ", titulo)
-  msg <- substr(msg, 1, 110)
-  msg <- paste0(msg, ". ", link, "#rstats")
+  msg <- substr(msg, 1, 100)
+  msg <- paste0(msg, ". ", link, " #rstats")
   return(msg)
 }
 
