@@ -30,7 +30,8 @@ df.posts.antigos <- read_csv2("posts.csv")
 sites <- c("Paixão por Dados" = "http://sillasgonzaga.github.io/feed.xml",
            "R, Python e Redes" = "http://neylsoncrepalde.github.io/feed.xml",
            "Symposio" = "https://blog.symposio.com.br/feed",
-           "Sociais e Métodos" = "https://sociaisemetodos.wordpress.com/feed/")
+           "Sociais e Métodos" = "https://sociaisemetodos.wordpress.com/feed/",
+           "Cantinho do R" = "https://cantinhodor.wordpress.com/feed/")
 
 
 lista.feed <- lapply(sites, feed.extract, encoding = "UTF-8")
