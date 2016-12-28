@@ -8,5 +8,7 @@ Criar um bot que monitora feeds RSS de blogs brasileiros relacionados ao R e pub
 - [Paixão por dados](http://sillasgonzaga.github.io/), Sillas Gonzaga;  
 - [R, Python e Redes](http://neylsoncrepalde.github.io/), por Neylson Crepalde;  
 - [Symposio](https://blog.symposio.com.br/), por Felipe Argolo;  
-
-
+- [Sociais e Métodos](https://sociaisemetodos.wordpress.com/feed/);  
+- [Cantinho do R](https://cantinhodor.wordpress.com/feed/);  
+- [Urban Demographics](http://feeds.feedburner.com/UrbanDemographics);  
+- [Análise Macro](http://feeds.feedburner.com/analisemacro);  

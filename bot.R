@@ -1,6 +1,5 @@
 rm(list = ls())
 
-
 # pacotes
 library(feedeR)
 library(magrittr)
@@ -19,13 +18,16 @@ access_token_secret <- Sys.getenv("twitter_access_token_secret")
 setup_twitter_oauth(api_key,api_secret,access_token,access_token_secret)
 
 # goo.gl
-load("my_googl")
-googl_token <- googl_auth(my_googl$key, my_googl$secret)
+#load("/home/sillas/R/Projetos/rbloggers-BR/my_googl")
+goo_gl_key = Sys.getenv("goo_gl_key")
+goo_gl_secret = Sys.getenv("goo_gl_secret")
+#googl_token <- googl_auth(goo_gl_key, goo_gl_secret)
+load("/home/sillas/R/Projetos/rbloggers-BR/googl_token")
 
 
 # Parsear RSS, baixar posts publicados e criar um dataframe com posts novos (df.posts.novos)
 # carregar posts ja usados no bot
-df.posts.antigos <- read_csv2("posts.csv")
+df.posts.antigos <- read_csv2("/home/sillas/R/Projetos/rbloggers-BR/posts.csv")
 
 sites <- c("Paixão por Dados" = "http://sillasgonzaga.github.io/feed.xml",
            "R, Python e Redes" = "http://neylsoncrepalde.github.io/feed.xml",
@@ -75,7 +77,7 @@ df.posts %<>% rbind(so)
 df.posts.novos <- subset(df.posts, !(hash %in% df.posts.antigos$hash))
 
 # salvar posts
-write.table(df.posts, file = "posts.csv", sep = ";", row.names = FALSE, append = FALSE)
+write.table(df.posts, file = "/home/sillas/R/Projetos/rbloggers-BR/posts.csv", sep = ";", row.names = FALSE, append = FALSE)
 
 
 # criar função de template de tweet
@@ -107,3 +109,13 @@ if (nrow(df.posts.novos) > 0) {
   }
 }
 
+### salvar log
+posts <- nrow(df.posts.novos)
+horario <- Sys.time()
+msg.log <- sprintf("%s. Quantidade de posts twittados: %s \n", horario, posts)
+
+fileConn <- file("/home/sillas/R/Projetos/rbloggers-BR/log.txt", open = "a")
+cat(msg.log, file = fileConn, sep = "")
+close(fileConn)
+
+rm(list = ls())
